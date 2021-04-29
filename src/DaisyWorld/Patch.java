@@ -3,44 +3,84 @@ package DaisyWorld;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * A patch in this model's 2D grid world. Each patch has its own temperature and
+ * a daisy might be living on this patch.
+ */
 public class Patch {
     protected Daisy daisy;
     private double temperature;
-    protected boolean seedingAbility;
+    private double receivedDiffuse;
 
+    /**
+     * Create a patch with no daisy and an temperature of 0.
+     */
     public Patch() {
         daisy = null;
         temperature = 0;
-        seedingAbility = false;
+        receivedDiffuse = 0;
     }
 
-    public void updateSeedingAbility() {
-        // TODO: Daisy increment age, update life property
-        if (daisy != null) {
-            double probability = 0.1457 * temperature -
-                    0.0032 * temperature * temperature - 0.6443;
-            if (new Random().nextDouble() <= probability) seedingAbility = true;
-        } else seedingAbility = false;
-    }
-
-    public void updateTemperature() {
+    /**
+     * Update the temperature of this specific patch by balancing its current
+     * temperature with the newly absorbed energy and then diffuse according to
+     * the diffusion percentage.
+     * @param percentage the percentage of temperature diffused to neighbours
+     * @return the share of temperature each neighbour should receive
+     */
+    public double updateTemperature(double percentage) {
         double absorbed = 0, localHeating = 0;
         if (daisy == null) {
             absorbed = (1 - Params.ALBEDO_OF_GROUND) * Params.LUMINOSITY;
         } else {
-            // TODO: Daisy colour?
+            if (daisy.colour == Params.DAISY_COLOUR.black)
+                absorbed = (1 - Params.ALBEDO_OF_BLACK) * Params.LUMINOSITY;
+            else
+                absorbed = (1 - Params.ALBEDO_OF_WHITE) * Params.LUMINOSITY;
         }
         if (absorbed > 0) {
             localHeating = 72 * Math.log(absorbed) + 80;
         } else localHeating = 80;
         temperature = (temperature + localHeating) / 2;
-        temperature /= 2;
+        double oldTemp = temperature;
+        temperature *= percentage;
+        return (oldTemp - temperature) / 8;
     }
 
-    public void reproduce(List<Patch> neighbours) {
-        if (seedingAbility) {
-            // TODO: set new daisy's colour the same as this one
-            neighbours.get(new Random().nextInt(neighbours.size())).daisy = new Daisy();
+    /**
+     * Receive a share of diffused temperature from one of its neighbours
+     * and store this to its received diffuse.
+     * @param receivedTemperature the amount of received temperature.
+     */
+    public void receiveDiffuse(double receivedTemperature) {
+        receivedDiffuse += receivedTemperature;
+    }
+
+    /**
+     * Finalize updating temperature by adding the received diffuse temperature
+     * to its local temperature.
+     */
+    public void updateTemperatureAfterDiffuse() {
+        temperature += receivedDiffuse;
+        receivedDiffuse = 0;
+    }
+
+    /**
+     * Check if the daisy on this patch is still alive and decide whether to
+     * give birth to a new daisy. The new daisy might not be put on a patch
+     * and disappear at last.
+     * @return the new daisy it has given birth to.
+     */
+    public Daisy checkSurvivability() {
+        if (daisy.isDead())
+            daisy = null;
+        if (daisy != null) {
+            double probability = 0.1457 * temperature -
+                    0.0032 * temperature * temperature - 0.6443;
+            if (new Random().nextDouble() <= probability) {
+                return new Daisy(daisy.colour);
+            }
         }
+        return null;
     }
 }
