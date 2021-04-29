@@ -23,12 +23,9 @@ public class Patch {
 
     /**
      * Update the temperature of this specific patch by balancing its current
-     * temperature with the newly absorbed energy and then diffuse according to
-     * the diffusion percentage.
-     * @param percentage the percentage of temperature diffused to neighbours
-     * @return the share of temperature each neighbour should receive
+     * temperature with the newly absorbed energy
      */
-    public double updateTemperature(double percentage) {
+    public void updateTemperature() {
         double absorbed = 0, localHeating = 0;
         if (daisy == null) {
             absorbed = (1 - Params.ALBEDO_OF_GROUND) * Params.LUMINOSITY;
@@ -42,6 +39,15 @@ public class Patch {
             localHeating = 72 * Math.log(absorbed) + 80;
         } else localHeating = 80;
         temperature = (temperature + localHeating) / 2;
+    }
+
+    /**
+     * diffuse the temperature of this patch by the given percentage and
+     * return the amount of temperature each of its neighbours should receive
+     * @param percentage the percentage of temperature diffused to neighbours
+     * @return the share of temperature each neighbour should receive
+     */
+    public double diffuse(double percentage) {
         double oldTemp = temperature;
         temperature *= percentage;
         return (oldTemp - temperature) / 8;
