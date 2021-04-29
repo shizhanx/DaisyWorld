@@ -10,7 +10,8 @@ public class Params {
     // Starting percentage of each kind of daisies. No more than 50%
     public static double START_WHITE = 0.2;
     public static double START_BLACK = 0.2;
+    public static SCENARIO scenario;
 
     public enum DAISY_COLOUR { black, white }
-    public enum SCENARIO { Ramp, maintain, low, our, high }
+    public enum SCENARIO {ramp, maintain, low, our, high }
 }
