@@ -3,6 +3,8 @@ package DaisyWorld;
 public class Params {
     // How many constants need to be initialized by command line arguments
     public static int NUM_OF_CONST = 7;
+
+    public static int TRIALS_OF_SIMULATION = 1000;
     // How much light energy is deflected from the ground
     public static double ALBEDO_OF_WHITE = 0.75;
     public static double ALBEDO_OF_BLACK = 0.25;

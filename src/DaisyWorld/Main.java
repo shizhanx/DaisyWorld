@@ -27,5 +27,9 @@ public class Main {
 
         Ground ground = new Ground();
         ground.initialize();
+        // Update the ground for the pre-defined times
+        for (int i = 0; i < Params.TRIALS_OF_SIMULATION; i++) {
+            ground.update();
+        }
     }
 }
