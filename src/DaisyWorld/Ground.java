@@ -11,9 +11,9 @@ public class Ground {
     // The time indication of the current run
     private int tick;
 
-    private Patch[][] patches;
+    private final Patch[][] patches;
     // Record the at most 8 neighbours of each patch to save time
-    private Map<Patch, List<Patch>> neighbours;
+    private final Map<Patch, List<Patch>> neighbours;
 
     /**
      * Create a new ground of patches and the mapping of each patch to

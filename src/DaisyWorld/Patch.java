@@ -25,7 +25,7 @@ public class Patch {
      * temperature with the newly absorbed energy
      */
     public void updateTemperature() {
-        double absorbed = 0, localHeating = 0;
+        double absorbed, localHeating;
         if (daisy == null) {
             absorbed = (1 - Params.ALBEDO_OF_GROUND) * Params.LUMINOSITY;
         } else {
