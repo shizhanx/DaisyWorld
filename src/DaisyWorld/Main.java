@@ -3,10 +3,12 @@ package DaisyWorld;
 public class Main {
 
     public static void main(String[] args) {
+        // Confirm the number of arguments is correct
         if (args.length != Params.NUM_OF_CONST) {
             System.err.println("Wrong number of arguments");
             System.exit(1);
         }
+        // Try to assign the corresponding parameters
         try {
             Params.ALBEDO_OF_WHITE = Double.parseDouble(args[0]);
             Params.ALBEDO_OF_BLACK = Double.parseDouble(args[1]);
@@ -22,5 +24,8 @@ public class Main {
             System.err.println("Wrong scenario name.");
             System.exit(1);
         }
+
+        Ground ground = new Ground();
+        ground.initialize();
     }
 }

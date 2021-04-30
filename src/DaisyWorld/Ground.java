@@ -1,5 +1,6 @@
 package DaisyWorld;
 
+import java.awt.print.PrinterAbortException;
 import java.util.*;
 
 public class Ground {
@@ -37,6 +38,47 @@ public class Ground {
                             neighbours.get(patches[r][c]).add(patches[nr][nc]);
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * initialize all the patches
+     */
+    public void initialize() {
+        tick = 0;
+        // Set luminosity according to the scenario
+        switch (Params.scenario) {
+            case low:
+                Params.LUMINOSITY = 0.6;
+                break;
+            case our:
+                Params.LUMINOSITY = 1.0;
+                break;
+            case high:
+                Params.LUMINOSITY = 1.4;
+                break;
+            case ramp:
+                Params.LUMINOSITY = 0.8;
+                break;
+            case maintain:
+                break;
+        }
+
+        for (Patch[] rows: patches) {
+            for (Patch patch: rows) {
+                // Randomly create daisies according to the settings
+                double random = new Random().nextDouble();
+                if (random < Params.START_WHITE) {
+                    patch.daisy = new Daisy(Params.DAISY_COLOUR.white);
+                    patch.daisy.setRandomAge();
+                } else if (random > 1 - Params.START_BLACK) {
+                    patch.daisy = new Daisy(Params.DAISY_COLOUR.black);
+                    patch.daisy.setRandomAge();
+                }
+                // Initialize the patch's temperature according to its daisy
+                // No diffuse at this point
+                patch.updateTemperature();
             }
         }
     }
@@ -81,26 +123,13 @@ public class Ground {
             }
         }
         // Finally update the luminosity according to the current scenario
-        switch (Params.scenario) {
-            case low:
-                Params.LUMINOSITY = 0.6;
-                break;
-            case our:
-                Params.LUMINOSITY = 1.0;
-                break;
-            case high:
-                Params.LUMINOSITY = 1.4;
-                break;
-            case ramp:
-                // Defined by NetLogo.
-                if (tick > 200 && tick <= 400) {
-                    Params.LUMINOSITY += 0.005;
-                } else if (tick > 600 && tick <= 850) {
-                    Params.LUMINOSITY -= 0.0025;
-                }
-                break;
-            case maintain:
-                break;
+        if (Params.scenario == Params.SCENARIO.ramp) {
+            // Defined by NetLogo.
+            if (tick > 200 && tick <= 400) {
+                Params.LUMINOSITY += 0.005;
+            } else if (tick > 600 && tick <= 850) {
+                Params.LUMINOSITY -= 0.0025;
+            }
         }
     }
 }

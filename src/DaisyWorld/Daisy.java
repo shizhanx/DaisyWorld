@@ -1,5 +1,7 @@
 package DaisyWorld;
 
+import java.util.Random;
+
 /**
  * A daisy in the daisy world model.
  * The Albedo of a daisy is decided by its colour. The corresponding Albedo
@@ -28,5 +30,9 @@ public class Daisy {
     protected boolean isDead() {
         currentAge++;
         return currentAge >= DYING_AGE;
+    }
+
+    protected void setRandomAge() {
+        currentAge = new Random().nextInt(DYING_AGE);
     }
 }
