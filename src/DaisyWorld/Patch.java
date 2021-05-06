@@ -88,4 +88,6 @@ public class Patch {
         }
         return null;
     }
+
+    public double getTemperature() { return temperature; }
 }

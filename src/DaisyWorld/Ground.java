@@ -12,6 +12,10 @@ public class Ground {
     // The time indication of the current run
     private int tick;
 
+    private double globalTemp;
+    private int blackPopulation;
+    private int whitePopulation;
+
     private final Patch[][] patches;
     // Record the at most 8 neighbours of each patch to save time
     private final Map<Patch, List<Patch>> neighbours;
@@ -24,6 +28,9 @@ public class Ground {
         patches = new Patch[ROW][COLUMN];
         neighbours = new HashMap<>();
         tick = 0;
+        globalTemp = 0;
+        blackPopulation = 0;
+        whitePopulation = 0;
         for (int r = 0; r < ROW; r++) {
             for (int c = 0; c < COLUMN; c++) {
                 patches[r][c] = new Patch();
@@ -44,8 +51,9 @@ public class Ground {
 
     /**
      * initialize all the patches
+     * @return the data output of global temperature, black and white populations.
      */
-    public void initialize() {
+    public double[] initialize() {
         tick = 0;
         // Set luminosity according to the scenario
         switch (Params.scenario) {
@@ -71,24 +79,34 @@ public class Ground {
                 double random = new Random().nextDouble();
                 if (random < Params.START_WHITE) {
                     patch.daisy = new Daisy(Params.DAISY_COLOUR.white);
+                    whitePopulation++;
                     patch.daisy.setRandomAge();
                 } else if (random > 1 - Params.START_BLACK) {
                     patch.daisy = new Daisy(Params.DAISY_COLOUR.black);
+                    blackPopulation++;
                     patch.daisy.setRandomAge();
                 }
                 // Initialize the patch's temperature according to its daisy
                 // No diffuse at this point
                 patch.updateTemperature();
+                globalTemp += patch.getTemperature();
             }
         }
+        globalTemp /= ROW * COLUMN;
+        return new double[]{ globalTemp, blackPopulation, whitePopulation };
     }
 
     /**
      * Update all the patches after one time step.
+     * @return the data output of global temperature, black and white populations.
      */
-    public void update() {
+    public double[] update() {
         // Increment the tick
         tick++;
+        // Initialize the data output
+        globalTemp = 0;
+        blackPopulation = 0;
+        whitePopulation = 0;
         // First update the temperature and record the received diffused
         // temperature from neighbours
         for (Patch[] row: patches) {
@@ -105,6 +123,7 @@ public class Ground {
             for (Patch patch : row) {
                 // Add the received diffuse temperature to the patches
                 patch.updateTemperatureAfterDiffuse();
+                globalTemp += patch.getTemperature();
                 // Then check if an offspring is produced
                 Daisy offspring = patch.checkSurvivability();
                 if (offspring != null) {
@@ -115,11 +134,21 @@ public class Ground {
                         if (neighbour.daisy == null)
                             possiblePlaces.add(neighbour);
                     }
-                    if (!possiblePlaces.isEmpty())
+                    if (!possiblePlaces.isEmpty()) {
                         possiblePlaces
                                 .get(new Random().nextInt(possiblePlaces.size()))
                                 .daisy = offspring;
+                    }
                 }
+            }
+        }
+        // Count the population
+        for (Patch[] row: patches) {
+            for (Patch patch: row) {
+                if (patch.daisy.colour == Params.DAISY_COLOUR.black)
+                    blackPopulation++;
+                else if (patch.daisy.colour == Params.DAISY_COLOUR.white)
+                    whitePopulation++;
             }
         }
         // Finally update the luminosity according to the current scenario
@@ -131,5 +160,6 @@ public class Ground {
                 Params.LUMINOSITY -= 0.0025;
             }
         }
+        return new double[]{ globalTemp, blackPopulation, whitePopulation };
     }
 }
