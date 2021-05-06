@@ -77,13 +77,15 @@ public class Patch {
      * @return the new daisy it has given birth to.
      */
     public Daisy checkSurvivability() {
-        if (daisy.isDead())
-            daisy = null;
         if (daisy != null) {
-            double probability = 0.1457 * temperature -
-                    0.0032 * temperature * temperature - 0.6443;
-            if (new Random().nextDouble() <= probability) {
-                return new Daisy(daisy.colour);
+            if (daisy.isDead())
+                daisy = null;
+            if (daisy != null) {
+                double probability = 0.1457 * temperature -
+                        0.0032 * temperature * temperature - 0.6443;
+                if (new Random().nextDouble() <= probability) {
+                    return new Daisy(daisy.colour);
+                }
             }
         }
         return null;

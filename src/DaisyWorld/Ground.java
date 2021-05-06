@@ -145,10 +145,12 @@ public class Ground {
         // Count the population
         for (Patch[] row: patches) {
             for (Patch patch: row) {
-                if (patch.daisy.colour == Params.DAISY_COLOUR.black)
-                    blackPopulation++;
-                else if (patch.daisy.colour == Params.DAISY_COLOUR.white)
-                    whitePopulation++;
+                if (patch.daisy != null) {
+                    if (patch.daisy.colour == Params.DAISY_COLOUR.black)
+                        blackPopulation++;
+                    else if (patch.daisy.colour == Params.DAISY_COLOUR.white)
+                        whitePopulation++;
+                }
             }
         }
         // Finally update the luminosity according to the current scenario
@@ -160,6 +162,8 @@ public class Ground {
                 Params.LUMINOSITY -= 0.0025;
             }
         }
+
+        globalTemp /= ROW * COLUMN;
         return new double[]{ globalTemp, blackPopulation, whitePopulation };
     }
 }
