@@ -8,6 +8,12 @@ import java.util.Random;
  */
 public class Patch {
     protected Daisy daisy;
+
+    // If a patch receives a new daisy from a neighbour, it's not directly
+    // put into the daisy slot to avoid one daily creating more than one
+    // new daisies in one time tick.
+    protected Daisy newDaisy;
+
     private double temperature;
     private double receivedDiffuse;
 
@@ -16,6 +22,7 @@ public class Patch {
      */
     public Patch() {
         daisy = null;
+        newDaisy = null;
         temperature = 0;
         receivedDiffuse = 0;
     }
@@ -89,6 +96,17 @@ public class Patch {
             }
         }
         return null;
+    }
+
+    /**
+     * Update the daisy of this patch after all the reproductions have
+     * taken place.
+     */
+    public void updateDaisyAfterReproducing() {
+        if (newDaisy != null) {
+            daisy = newDaisy;
+            newDaisy = null;
+        }
     }
 
     public double getTemperature() { return temperature; }

@@ -131,15 +131,21 @@ public class Ground {
                     // or do nothing if no neighbour is available
                     List<Patch> possiblePlaces = new LinkedList<>();
                     for (Patch neighbour: neighbours.get(patch)) {
-                        if (neighbour.daisy == null)
+                        if (neighbour.daisy == null && neighbour.newDaisy == null)
                             possiblePlaces.add(neighbour);
                     }
                     if (!possiblePlaces.isEmpty()) {
                         possiblePlaces
                                 .get(new Random().nextInt(possiblePlaces.size()))
-                                .daisy = offspring;
+                                .newDaisy = offspring;
                     }
                 }
+            }
+        }
+        // Finally put the new-born daisies to daisy slots from newDaisy slots.
+        for (Patch[] row: patches) {
+            for (Patch patch : row) {
+                patch.updateDaisyAfterReproducing();
             }
         }
         // Count the population
