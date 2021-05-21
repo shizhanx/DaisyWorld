@@ -48,7 +48,6 @@ public class Daisy {
         genes[1] = parent2.getRandomGene(true);
         genes[2] = parent1.getRandomGene(false);
         genes[3] = parent2.getRandomGene(false);
-        if ()
     }
 
     /**

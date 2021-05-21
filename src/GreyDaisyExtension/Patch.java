@@ -36,8 +36,10 @@ public class Patch {
         if (daisy == null) {
             absorbed = (1 - Params.ALBEDO_OF_GROUND) * Params.LUMINOSITY;
         } else {
-            if (daisy.colour == Params.DAISY_COLOUR.black)
+            if (daisy.getColour() == Params.DAISY_COLOUR.black)
                 absorbed = (1 - Params.ALBEDO_OF_BLACK) * Params.LUMINOSITY;
+            else if (daisy.getColour() == Params.DAISY_COLOUR.grey)
+                absorbed = (1 - Params.ALBEDO_OF_GREY) * Params.LUMINOSITY;
             else
                 absorbed = (1 - Params.ALBEDO_OF_WHITE) * Params.LUMINOSITY;
         }
@@ -81,21 +83,21 @@ public class Patch {
      * Check if the daisy on this patch is still alive and decide whether to
      * give birth to a new daisy. The new daisy might not be put on a patch
      * and disappear at last.
-     * @return the new daisy it has given birth to.
+     * @return if this patch can reproduce a new daisy.
      */
-    public Daisy checkSurvivability() {
+    public boolean checkSurvivability() {
         if (daisy != null) {
-            if (daisy.isDead())
+            if (daisy.isDead(temperature))
                 daisy = null;
             if (daisy != null) {
                 double probability = 0.1457 * temperature -
                         0.0032 * temperature * temperature - 0.6443;
                 if (new Random().nextDouble() <= probability) {
-                    return new Daisy(daisy.colour);
+                    return true;
                 }
             }
         }
-        return null;
+        return false;
     }
 
     /**
