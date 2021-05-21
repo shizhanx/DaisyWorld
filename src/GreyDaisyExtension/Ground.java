@@ -106,6 +106,7 @@ public class Ground {
         globalTemp = 0;
         blackPopulation = 0;
         whitePopulation = 0;
+        greyPopulation = 0;
         // First update the temperature and record the received diffused
         // temperature from neighbours
         for (Patch[] row: patches) {

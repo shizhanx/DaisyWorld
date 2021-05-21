@@ -16,7 +16,7 @@ public class Main {
                 // Write to a test result file
                 try (CSVWriter csvWriter = new CSVWriter(new FileWriter(senario + "TestResult.csv"))) {
                     csvWriter.writeNext(new String[]{ "White population",
-                            "Black population", "Global temperature" });
+                            "Black population", "Grey population", "Global temperature" });
                     // Initialize the ground
                     Ground ground = new Ground();
                     double[] result = ground.initialize();
@@ -35,8 +35,9 @@ public class Main {
 
     private static String[] parseResult(double[] result) {
         return new String[]{
-                Integer.toString((int)result[2]),
-                Integer.toString((int)result[1]),
+                Integer.toString((int) result[2]),
+                Integer.toString((int) result[1]),
+                Integer.toString((int) result[3]),
                 Double.toString(result[0])
         };
     }
