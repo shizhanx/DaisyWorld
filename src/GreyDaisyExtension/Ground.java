@@ -14,6 +14,7 @@ public class Ground {
     private double globalTemp;
     private int blackPopulation;
     private int whitePopulation;
+    private int greyPopulation;
 
     private final Patch[][] patches;
     // Record the at most 8 neighbours of each patch to save time
@@ -90,7 +91,8 @@ public class Ground {
             }
         }
         globalTemp /= ROW * COLUMN;
-        return new double[]{ globalTemp, blackPopulation, whitePopulation };
+        // No grey daisy at the beginning
+        return new double[]{ globalTemp, blackPopulation, whitePopulation, 0 };
     }
 
     /**
@@ -122,19 +124,37 @@ public class Ground {
                 patch.updateTemperatureAfterDiffuse();
                 globalTemp += patch.getTemperature();
                 // Then check if an offspring is produced
-                Daisy offspring = patch.checkSurvivability();
-                if (offspring != null) {
-                    // Find a random possible neighbour to plant the offspring
-                    // or do nothing if no neighbour is available
-                    List<Patch> possiblePlaces = new LinkedList<>();
+                if (patch.checkSurvivability()) {
+                    List<Patch> emptyNeighbour = new LinkedList<>(), daisyNeighbour = new LinkedList<>();
                     for (Patch neighbour: neighbours.get(patch)) {
                         if (neighbour.daisy == null && neighbour.newDaisy == null)
-                            possiblePlaces.add(neighbour);
+                            emptyNeighbour.add(neighbour);
+                        else if (neighbour.daisy != null)
+                            daisyNeighbour.add(neighbour);
                     }
-                    if (!possiblePlaces.isEmpty()) {
-                        possiblePlaces
-                                .get(new Random().nextInt(possiblePlaces.size()))
-                                .newDaisy = offspring;
+                    // Only reproduce when available patch and partner daisy exist
+                    if (!emptyNeighbour.isEmpty() && !daisyNeighbour.isEmpty()) {
+                        Daisy partner = daisyNeighbour
+                                .get(new Random().nextInt(daisyNeighbour.size()))
+                                .daisy;
+                        Daisy offspring = new Daisy(patch.daisy, partner);
+                        // Check if the offspring has at least one dominant gene to survive
+                        // and if the object patch has the suitable temperature
+                        if (offspring.getColour() != null) {
+                            Patch object = emptyNeighbour.get(new Random().nextInt(emptyNeighbour.size()));
+                            double objectTemperature = object.getTemperature();
+                            if (offspring.getColour() == Params.DAISY_COLOUR.white
+                                    && objectTemperature > Params.WHITE_LOWER
+                                    && objectTemperature < Params.WHITE_HIGHER
+                                    || offspring.getColour() == Params.DAISY_COLOUR.black
+                                    && objectTemperature > Params.BLACK_LOWER
+                                    && objectTemperature < Params.BLACK_HIGHER
+                                    || offspring.getColour() == Params.DAISY_COLOUR.grey
+                                    && objectTemperature > Params.GREY_LOWER
+                                    && objectTemperature < Params.GREY_HIGHER ) {
+                                object.newDaisy = offspring;
+                            }
+                        }
                     }
                 }
             }
@@ -149,10 +169,12 @@ public class Ground {
         for (Patch[] row: patches) {
             for (Patch patch: row) {
                 if (patch.daisy != null) {
-                    if (patch.daisy.colour == Params.DAISY_COLOUR.black)
+                    if (patch.daisy.getColour() == Params.DAISY_COLOUR.black)
                         blackPopulation++;
-                    else if (patch.daisy.colour == Params.DAISY_COLOUR.white)
+                    else if (patch.daisy.getColour() == Params.DAISY_COLOUR.white)
                         whitePopulation++;
+                    else
+                        greyPopulation++;
                 }
             }
         }
@@ -167,6 +189,6 @@ public class Ground {
         }
 
         globalTemp /= ROW * COLUMN;
-        return new double[]{ globalTemp, blackPopulation, whitePopulation };
+        return new double[]{ globalTemp, blackPopulation, whitePopulation, greyPopulation };
     }
 }
